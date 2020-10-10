@@ -209,7 +209,7 @@ int main()
         if (move == "exit") break;
         
         if (move == "undo") {
-            if (step >= 1) {
+            if (step > 1) {
                 step -= 2;
                 pair<int, int> last_pos = moves_vec[moves_vec.size()-1];
                 moves_vec.pop_back();
@@ -221,9 +221,15 @@ int main()
                 else {
                     board[x][y] = EMPTY_STONE;
                 }
+                
+                DrawBoard(board);
+                continue;
             }
-            DrawBoard(board);
-            continue;
+            else {
+                step -= 1;
+                continue;
+            }
+            
         }
         
         pair<int, int> pos = ParseMove(move);
