@@ -3,6 +3,9 @@
 #include <vector>
 using namespace std;
 
+#define IsStarPosition(x, y) \
+        ( ((x)==3 && (y)==3) || ((x)==3 && (y)==11) || ((x)==7 && (y)==7) || ((x)==11 && (y)==3) || ((x)==11 && (y)==11) )
+
 const int WIN_STONE_NUM = 5;
 const int LINE_NUM = 15;
 const int MAX_STEPS = LINE_NUM * LINE_NUM;
@@ -46,7 +49,7 @@ void DrawBoard(const vector<vector<Byte>>& board)
         
         for (int j=0; j<LINE_NUM; j++) {
             // check star positions
-            if ( ( (i==3 && j==3) || (i==3 && j==11) || (i==7 && j==7) || (i==11 && j==3) || (i==11 && j==11) ) 
+            if ( IsStarPosition(i, j) 
                  && 
                  (board[i][j] == EMPTY_STONE) ) {
                 ss_board << StoneMapping[STAR_STONE] << ' ';
@@ -191,6 +194,8 @@ int main()
     
     DrawBoard(board);
     
+    vector< pair<int, int> > moves_vec;
+    
     int step = 0;
     while (step <= MAX_STEPS) {
         step ++;
@@ -203,10 +208,31 @@ int main()
         
         if (move == "exit") break;
         
+        if (move == "undo") {
+            if (step >= 1) {
+                step -= 2;
+                pair<int, int> last_pos = moves_vec[moves_vec.size()-1];
+                moves_vec.pop_back();
+                
+                int x = last_pos.first, y = last_pos.second;
+                if ( IsStarPosition(x, y) ) {
+                    board[x][y] = STAR_STONE;
+                }
+                else {
+                    board[x][y] = EMPTY_STONE;
+                }
+            }
+            DrawBoard(board);
+            continue;
+        }
+        
         pair<int, int> pos = ParseMove(move);
-        if (pos.first < 0 || pos.second < 0 || board[pos.first][pos.second] != EMPTY_STONE) {
+        if (pos.first < 0 || pos.second < 0 || ( board[pos.first][pos.second] != EMPTY_STONE && board[pos.first][pos.second] != STAR_STONE )) {
             cout << "Invalid Move, please input again\n";
             goto INPUT_MOVE;
+        }
+        else {
+            moves_vec.push_back(pos);
         }
         board[pos.first][pos.second] = step % 2;
         DrawBoard(board);
