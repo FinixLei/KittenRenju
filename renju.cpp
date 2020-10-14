@@ -76,20 +76,32 @@ pair<int, int> ParseMove(const string& move)
         col = move[0] - 'a';
     }
     
+    if (col < 0 || col > 15) {
+        return make_pair(-1, -1);
+    }
+    
     if (move.size() == 2) {
-        row = move[1] - '0'; 
+        row = move[1] - '1';  // 1-9 
+        if (row < 0 || row > 9) {
+            return make_pair(-1, -1);
+        }
     }
     else if (move.size() == 3) {
-        row = (move[1]-'0') * 10 + move[2] - '0';
-    }
-    
-    if (row > LINE_NUM) {
-        row = -1;
+        int n1 = move[1]-'0';
+        int n2 = move[2]-'0';
+        
+        if (n1 != 1 || n2 < 0 || n2 > 5) {  // 1[0-5]
+            return make_pair(-1, -1);
+        }
+        else {
+            row = n1 * 10 + n2;
+        }
     }
     else {
-        row = LINE_NUM - row;
+        return make_pair(-1, -1);
     }
     
+    row = LINE_NUM - row;
     return make_pair(row, col);
 }
 
@@ -229,7 +241,6 @@ int main()
                 step -= 1;
                 continue;
             }
-            
         }
         
         pair<int, int> pos = ParseMove(move);
